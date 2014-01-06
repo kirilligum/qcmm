@@ -45,16 +45,6 @@ int main(int argc, char const *argv[]) {
   double dt = end_time/time_steps;
   vector<vector<double>> traj(time_steps);
   traj[0]=initial_state;
-  cout << "anal energy = " << pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state) << endl;
-  cout << "num energy = " << pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state) << endl;
-  vector<double> ader(initial_state);
-  pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state,ader,1e-6);
-  cout << "anal deriv = ";
-  std::copy(std::begin(ader), std::end(ader),std::ostream_iterator<double>(std::cout," ")); std::cout << std::endl;
-  vector<double> nder(initial_state);
-  eom{dfdv_num{pcet{e1,e2,v12,w1,w2,mr,eac}}}(initial_state,nder,1e-6);
-  cout << "num deriv = ";
-  std::copy(std::begin(nder), std::end(nder),std::ostream_iterator<double>(std::cout," ")); std::cout << std::endl;
   boost::partial_sum(traj, traj.begin(),ode_step(dt,pcet{e1,e2,v12,w1,w2,mr,eac}));
   ofstream ot("traj.txt"); for(auto i:traj) { std::copy(std::begin(i), std::end(i),std::ostream_iterator<double>(ot," ")); ot << std::endl;}
   ofstream on("trajnne.txt"); for(auto i:traj) { 
@@ -63,17 +53,6 @@ int main(int argc, char const *argv[]) {
     on << eac.n(i[3],i[4]) << "  ";
     on << pcet{e1,e2,v12,w1,w2,mr,eac}(i) << "  ";
     on << std::endl;
-  }
-  vector<vector<double>> trajn(time_steps);
-  trajn[0]=initial_state;
-  boost::partial_sum(trajn, trajn.begin(),ode_step(dt,eom{dfdv_num{pcet{e1,e2,v12,w1,w2,mr,eac}}}));
-  ofstream otn("trajn.txt"); for(auto i:trajn) { std::copy(std::begin(i), std::end(i),std::ostream_iterator<double>(otn," ")); otn << std::endl;}
-  ofstream onn("trajnnen.txt"); for(auto i:trajn) { 
-    onn << i[0] << "  ";
-    onn << eac.n(i[1],i[2]) << "  ";
-    onn << eac.n(i[3],i[4]) << "  ";
-    onn << pcet{e1,e2,v12,w1,w2,mr,eac}(i) << "  ";
-    onn << std::endl;
   }
   return 0;
 }

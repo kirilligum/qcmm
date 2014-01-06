@@ -26,8 +26,6 @@ double pcet::operator()(const vd& v) {
     (e1+w1*w1*mr*qr*qr*0.5)*n1+
     (e2+w2*w2*mr*qr*qr*0.5)*n2+
     v12*(xn1*xn2+pn1*pn2);
-  //return pr*pr*0.5/mr+
-    //qr*qr*0.5;
     //2*v12*sqrt((n1+e.n_shift)*(n2+e.n_shift))*(xn1*xn2+pn1*pn2); ///> TODO
 }
 
@@ -38,26 +36,13 @@ void pcet::operator () ( const std::vector<double> &v, std::vector<double> &dvdt
   double w1_w1_mr_qr_qr_05 = w1*w1*mr_qr_qr_05;
   double w2_w2_mr_qr_qr_05 = w2*w2*mr_qr_qr_05;
   dvdt[0]=0.0;
-  //dvdt[1]=(e1+w1*w1*mr*qr*qr*0.5)*v[2]+v12*v[4];
-  //dvdt[2]=(e1+w1*w1*mr*qr*qr*0.5)*v[1]+v12*v[3];
   dvdt[1]=(e1+w1_w1_mr_qr_qr_05)*v[2]+v12*v[4];
   dvdt[2]=(e1+w1_w1_mr_qr_qr_05)*v[1]+v12*v[3];
-  //dvdt[1]=(e1+w1_w1_mr_qr_qr_05)*v[2];
-  //dvdt[2]=(e1+w1_w1_mr_qr_qr_05)*v[1];
-  //dvdt[1]=0.0;
-  //dvdt[2]=0.0;
   dvdt[2]*=-1;
-  //dvdt[3]=(e2+w2*w2*mr*qr*qr*0.5)*v[4]+v12*v[2];
-  //dvdt[4]=(e2+w2*w2*mr*qr*qr*0.5)*v[3]+v12*v[1];
   dvdt[3]=(e2+w2_w2_mr_qr_qr_05)*v[4]+v12*v[2];
   dvdt[4]=(e2+w2_w2_mr_qr_qr_05)*v[3]+v12*v[1];
-  //dvdt[3]=(e2+w2_w2_mr_qr_qr_05)*v[4];
-  //dvdt[4]=(e2+w2_w2_mr_qr_qr_05)*v[3];
-  //dvdt[3]=0.0;
-  //dvdt[4]=0.0;
   dvdt[4]*=-1;
   dvdt[5]=v[6]/mr;
-  dvdt[6]=v[5];
-  //dvdt[6]=w1*w1*mr*qr*n1 + w2*w2*mr*qr*n2;
+  dvdt[6]=w1*w1*mr*qr*n1 + w2*w2*mr*qr*n2;
   dvdt[6]*=-1;
 }
