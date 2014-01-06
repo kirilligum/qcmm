@@ -9,12 +9,12 @@ project (main)
 ADD_DEFINITIONS("-std=c++0x -O3")
 
 # taken from here to include openmp http://berenger.eu/blog/2011/04/06/cmake-openmp-with-cmake/
-include(FindOpenMP)
-if(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
+#include(FindOpenMP)
+#if(OPENMP_FOUND)
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
 
 
 #set(CMAKE_CXX_COMPILER mpicxx)
@@ -63,7 +63,7 @@ add_executable(../main
   #source/lua_read.cpp
   #source/read_config.cpp
   #source/state_electronic_population.cpp
-  #source/pcet.cpp
+  source/pcet.cpp
   #source/traj_step.cpp
   #source/ave_dyn_step.cpp
   #source/ave_over_states.cpp
@@ -83,9 +83,12 @@ add_executable(../main
   #source/make_initial_state.cpp
   ##source/spin_boson.cpp
   ##source/tunnel.cpp
-  #source/ode_step.cpp
+  source/ode_step.cpp
   #source/integrate_traj.cpp
   #source/electronic_population.cpp
+  source/electronic_aa_cart.cpp
+  source/eom.cpp
+  source/dfdv_num.cpp
   source/main.cpp
   #ctags
   )

@@ -11,35 +11,69 @@
 #include <tuple>
 #include <iterator>
 //#include <mpi.h>
-//#include <boost/range/algorithm.hpp>
-//#include <boost/range/algorithm_ext.hpp>
-//#include <boost/range/numeric.hpp>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm_ext.hpp>
+#include <boost/range/numeric.hpp>
 //#include <boost/math/constants/constants.hpp>
-//#include <boost/numeric/odeint.hpp>
-typedef std::vector<double> vd; typedef std::vector<std::vector<double>> vvd; typedef std::vector<std::vector<std::vector<double>>> vvvd;
 
-struct electronic_aa_cart {
-  double n_shift;
-  double x(double n, double q) { return sqrt(2*(n+n_shift))*cos(q); }
-  double p(double n, double q) { return -sqrt(2*(n+n_shift))*sin(q); }
-  double n(double x, double p) { return (x*x+p*p)*0.5 - n_shift;}
-};
+#include "dfdv_num.hpp"
+#include "eom.hpp"
+#include "electronic_aa_cart.hpp"
+#include "pcet.hpp"
+#include "ode_step.hpp"
+
+//typedef std::vector<double> vd; typedef std::vector<std::vector<double>> vvd; typedef std::vector<std::vector<std::vector<double>>> vvvd;
 
 int main(int argc, char const *argv[]) {
   using namespace std;
   cout << "hi\n";
-  double n_shift = 0.366, n1=1.0,n2=0.0,qr=-0.5,pr=0.0;
+  double n_shift = 0.366, n1=1.0,n2=1.0-n1,qr=-0.5,pr=0.0;
   std::random_device rd;
   std::uniform_real_distribution<double> ran_pi(0.0,2*M_PI);
   double q1 = ran_pi(rd);
   double q2 = ran_pi(rd);
-  double xn1 = electronic_aa_cart{n_shift}.x(n1,q1);
-  double pn1 = electronic_aa_cart{n_shift}.p(n1,q1);
-  double xn2 = electronic_aa_cart{n_shift}.x(n2,q2);
-  double pn2 = electronic_aa_cart{n_shift}.p(n2,q2);
-  vd initial_state = {0.0,xn1,pn1,xn2,pn2,qr,pr}; ///> time + nn + r
+  electronic_aa_cart eac{n_shift};
+  double xn1 = eac.x(n1,q1);
+  double pn1 = eac.p(n1,q1);
+  double xn2 = eac.x(n2,q2);
+  double pn2 = eac.p(n2,q2);
+  vector<double> initial_state = {0.0,xn1,pn1,xn2,pn2,qr,pr}; ///> time + nn + r
   std::copy(std::begin(initial_state), std::end(initial_state),std::ostream_iterator<double>(cout," ")); cout << endl;
-  cout << electronic_aa_cart{n_shift}.n(xn1,pn1) << endl;
-  cout << electronic_aa_cart{n_shift}.n(xn2,pn2) << endl;
+  double e1=1.0,e2=0.0,v12=1.0e1,w1=1.0,w2=1.0,mr=1.0;
+  size_t time_steps = 4e2;
+  double end_time =2e0;
+  double dt = end_time/time_steps;
+  vector<vector<double>> traj(time_steps);
+  traj[0]=initial_state;
+  cout << "anal energy = " << pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state) << endl;
+  cout << "num energy = " << pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state) << endl;
+  vector<double> ader(initial_state);
+  pcet{e1,e2,v12,w1,w2,mr,eac}(initial_state,ader,1e-6);
+  cout << "anal deriv = ";
+  std::copy(std::begin(ader), std::end(ader),std::ostream_iterator<double>(std::cout," ")); std::cout << std::endl;
+  vector<double> nder(initial_state);
+  eom{dfdv_num{pcet{e1,e2,v12,w1,w2,mr,eac}}}(initial_state,nder,1e-6);
+  cout << "num deriv = ";
+  std::copy(std::begin(nder), std::end(nder),std::ostream_iterator<double>(std::cout," ")); std::cout << std::endl;
+  boost::partial_sum(traj, traj.begin(),ode_step(dt,pcet{e1,e2,v12,w1,w2,mr,eac}));
+  ofstream ot("traj.txt"); for(auto i:traj) { std::copy(std::begin(i), std::end(i),std::ostream_iterator<double>(ot," ")); ot << std::endl;}
+  ofstream on("trajnne.txt"); for(auto i:traj) { 
+    on << i[0] << "  ";
+    on << eac.n(i[1],i[2]) << "  ";
+    on << eac.n(i[3],i[4]) << "  ";
+    on << pcet{e1,e2,v12,w1,w2,mr,eac}(i) << "  ";
+    on << std::endl;
+  }
+  vector<vector<double>> trajn(time_steps);
+  trajn[0]=initial_state;
+  boost::partial_sum(trajn, trajn.begin(),ode_step(dt,eom{dfdv_num{pcet{e1,e2,v12,w1,w2,mr,eac}}}));
+  ofstream otn("trajn.txt"); for(auto i:trajn) { std::copy(std::begin(i), std::end(i),std::ostream_iterator<double>(otn," ")); otn << std::endl;}
+  ofstream onn("trajnnen.txt"); for(auto i:trajn) { 
+    onn << i[0] << "  ";
+    onn << eac.n(i[1],i[2]) << "  ";
+    onn << eac.n(i[3],i[4]) << "  ";
+    onn << pcet{e1,e2,v12,w1,w2,mr,eac}(i) << "  ";
+    onn << std::endl;
+  }
   return 0;
 }

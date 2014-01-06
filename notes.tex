@@ -1,0 +1,87 @@
+%%fakesection
+\documentclass{article}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{soul}
+\usepackage{fullpage}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{pifont}
+
+
+\let\Item\item
+\renewcommand\item{\normalcolor\Item}
+
+\newcommand\ml{\color[RGB]{153, 150, 204}} %may be later
+\newcommand\later{\color[RGB]{153, 204, 150}} %later
+\newcommand\nn{\color[RGB]{124, 124, 255}} %no need to do
+\newcommand\done{\color[RGB]{129, 180, 185} \ding{52} }
+\newcommand\now{\color[RGB]{255, 0, 0}} %current
+
+\begin{document}
+
+
+
+\section{keys}
+\begin{itemize}
+  \item \ml may be later
+  \item \done done
+  \item \nn no need to do
+  \item \now current 
+\end{itemize}
+
+t[...] for tags
+
+t[priorety unsorted] or t[pu]-- not sorted in priorety yet
+
+\section{doing}
+\subsection{add bath}
+created on Fri Jan  3 21:07:00 PST 2014
+\label{sub:add_bath}
+follow steve's code to add bath
+% subsection add_bath (end)
+\section{to do}
+\subsection{ask steve about coupling}
+\label{sub:ask_steve_about_coupling}
+why there is no \verb`2*v12*sqrt((n1+e.n_shift)*(n2+e.n_shift))*(xn1*xn2+pn1*pn2);`
+% subsection ask_steve_about_coupling (end)
+\subsection{if n<=0 ask steve}
+Thu Jan  2 18:41:20 PST 2014
+\label{sub:if_n_0_ask_steve}
+in the file harmonic.h++, why is there a line \verb`if( n <= 0 ) return 0;`
+% subsection if_n_0_ask_steve (end)
+\section{to do priority unsorted}
+\section{plan}
+\section{past}
+\subsection{plot n1 and r}
+done: Mon Jan  6 11:48:28 PST 2014
+created on Fri Jan  3 21:04:31 PST 2014
+\label{sub:plot_n1_and_r}
+make a loop over integrate and \verb`push_back()` the result to a vector\\
+took \verb`ode_ste` from the previous code and used \verb`partial_sum` to integrate\\
+\begin{itemize}
+  \item \done output the whole state vector that contains r
+  \item \done output time, n1, n2 and energy to another file
+\end{itemize}
+% subsection plot_n1_and_r (end)
+\subsection{hamiltonian}
+Fri Jan  3 20:46:55 PST 2014
+Thu Jan  2 20:00:06 PST 2014
+\label{sub:hamiltonian}
+
+write a hamiltonian of the pcet system then do numerical derivatives then analytical
+
+% subsection hamiltonian (end)
+\subsection{aa to cart for electron}
+Thu Jan  2 19:22:14 PST 2014
+Thu Jan  2 19:22:25 PST 2014
+\label{sub:aa_to_cart_for_electron}
+
+finished. in my previous code, there was a mistake x and p were calculaed in opposit but it shouldn't be a problem.
+
+the mathematica file has formulas for the conversion. 
+
+would be nice to have a better refference for the conversion
+
+% subsection aa_to_cart_for_electron (end)
+\section{notes}
+\end{document}
