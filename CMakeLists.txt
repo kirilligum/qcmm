@@ -79,8 +79,8 @@ add_executable(../main
   #source/c.cpp
   #source/j.cpp
   #source/make_cb.cpp
-  #source/make_bath.cpp
-  #source/make_initial_state.cpp
+  source/make_bath.cpp
+  source/make_initial_state.cpp
   ##source/spin_boson.cpp
   ##source/tunnel.cpp
   source/ode_step.cpp

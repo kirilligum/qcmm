@@ -21,37 +21,38 @@
 #include "electronic_aa_cart.hpp"
 #include "pcet.hpp"
 #include "ode_step.hpp"
+#include "ohmic_bath_param.hpp"
+#include "pcet_param.hpp"
+#include "make_bath.hpp"
+#include "make_initial_state.hpp"
 
 //typedef std::vector<double> vd; typedef std::vector<std::vector<double>> vvd; typedef std::vector<std::vector<std::vector<double>>> vvvd;
 
 int main(int argc, char const *argv[]) {
   using namespace std;
   cout << "hi\n";
-  double n_shift = 0.366, n1=1.0,n2=1.0-n1,qr=-0.5,pr=0.0;
-  std::random_device rd;
-  std::uniform_real_distribution<double> ran_pi(0.0,2*M_PI);
-  double q1 = ran_pi(rd);
-  double q2 = ran_pi(rd);
-  electronic_aa_cart eac{n_shift};
-  double xn1 = eac.x(n1,q1);
-  double pn1 = eac.p(n1,q1);
-  double xn2 = eac.x(n2,q2);
-  double pn2 = eac.p(n2,q2);
-  vector<double> initial_state = {0.0,xn1,pn1,xn2,pn2,qr,pr}; ///> time + nn + r
+  //std::random_device rd;
+  size_t world_rank=1, seed = 1;
+  std::default_random_engine gen(world_rank+seed);
+  ohmic_bath_param  bp; std::vector<double> initial_bath,bw,bc;
+  tie(initial_bath,bw,bc) = make_bath(bp,gen);
+  pcet_param sp;
+  auto initial_state = make_initial_state(sp,gen);
+  initial_state.insert(end(initial_state),begin(initial_bath),end(initial_bath));
   std::copy(std::begin(initial_state), std::end(initial_state),std::ostream_iterator<double>(cout," ")); cout << endl;
-  double e1=1.0,e2=0.0,v12=1.0e1,w1=1.0,w2=1.0,mr=1.0;
+  electronic_aa_cart eac{sp.n_shift};
   size_t time_steps = 4e2;
-  double end_time =2e0;
+  double end_time =2e3;
   double dt = end_time/time_steps;
   vector<vector<double>> traj(time_steps);
   traj[0]=initial_state;
-  boost::partial_sum(traj, traj.begin(),ode_step(dt,pcet{e1,e2,v12,w1,w2,mr,eac}));
+  boost::partial_sum(traj, traj.begin(),ode_step(dt,pcet{sp,bp,bw,bc,eac}));
   ofstream ot("traj.txt"); for(auto i:traj) { std::copy(std::begin(i), std::end(i),std::ostream_iterator<double>(ot," ")); ot << std::endl;}
   ofstream on("trajnne.txt"); for(auto i:traj) { 
-    on << i[0] << "  ";
-    on << eac.n(i[1],i[2]) << "  ";
-    on << eac.n(i[3],i[4]) << "  ";
-    on << pcet{e1,e2,v12,w1,w2,mr,eac}(i) << "  ";
+    on << setw(20) << fixed << i[0] << "  ";
+    on << setw(20) << fixed << eac.n(i[1],i[2]) << "  ";
+    on << setw(20) << fixed << eac.n(i[3],i[4]) << "  ";
+    on << setw(20) << fixed << pcet{sp,bp,bw,bc,eac}(i) << "  ";
     on << std::endl;
   }
   return 0;

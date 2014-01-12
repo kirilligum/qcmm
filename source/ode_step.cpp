@@ -23,7 +23,13 @@ ode_step::ode_step(double dt_,std::function<void(const std::vector<double>&,std:
 std::vector<double> ode_step::operator()(std::vector<double> a, std::vector<double> b) {
   using namespace boost::numeric::odeint;
   std::vector<double> current(a);
-  integrate(eom, current, a[0],a[0]+dt,dt*1e-3);
+  typedef runge_kutta_cash_karp54<std::vector<double>> error_stopper_type;
+  typedef controlled_runge_kutta<error_stopper_type> controlled_stepper_type;
+  //controlled_stepper_type controlled_stepper(default_error_checker<double>(1.0e-6,1.0e-6,1.0,1.0));
+  controlled_stepper_type controlled_stepper(default_error_checker<double>(1.0e-9,1.0e-9,1.0,1.0));
+  //integrate_n_steps(controlled_stepper,eom(d_ham),v,0.0,time_step,(int)(time_duration/time_step),streamer(result));
+  integrate_adaptive(controlled_stepper, eom, current, a[0],a[0]+dt,dt*1e-3);
+  //integrate(eom, current, a[0],a[0]+dt,dt*1e-3);
   current[0]+=dt;
   return current;
 }
